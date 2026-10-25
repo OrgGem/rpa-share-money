@@ -1,8 +1,8 @@
 // Editable extension over the immutable recovered deployment snapshot.
-import recovered from '../recovered/worker/ui-wrapper.mjs';
+import recovered from '../.build/ui-wrapper.mjs';
 import { moneyLayoutCss, moneyLayoutClient } from '../.build/money-layout-assets.mjs';
 
-export { WriteOutbox } from '../recovered/worker/ui-wrapper.mjs';
+export { WriteOutbox } from '../.build/ui-wrapper.mjs';
 
 export default {
   async fetch(request, env, ctx) {

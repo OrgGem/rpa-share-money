@@ -20,6 +20,12 @@ Các file kiểm tra, công cụ và tài liệu được viết mới cho lần
 
 Bản sửa này chưa được triển khai lên production. Muốn tích hợp cần dùng entrypoint mới, giữ bộ Static Assets hiện có, cấu hình binding/scope riêng phù hợp và kiểm thử trên môi trường đầy đủ.
 
+## Tải trước thông tin QR
+
+Khi dữ liệu công nợ hợp lệ được render, [host QR mới](src/ui/bank-qr-host.js) tải hồ sơ các chủ nợ song song (tối đa bốn request mỗi đợt), kể cả khi chưa mở “Cần trả”. Request đang chạy được dùng chung; kết quả thành công được giữ trong bộ nhớ tối đa 30 giây, giới hạn 100 hồ sơ. Khi mở “Cần trả”, icon dùng kết quả đã tải; nếu mạng chưa trả về, vẫn cần chờ request đó hoàn tất.
+
+Cache được bỏ khi đổi tài khoản, khoảng ngày, scope hoặc dữ liệu chi tiêu; không lưu vào localStorage. Lỗi không được cache. Khi người dùng bấm icon để mở QR, bundle luôn đọc mới thông tin và số tiền từ server. Quyền đọc phía server vẫn giữ nguyên. Build tạo wrapper dẫn xuất trong `.build/`, thay host và đúng điểm gọi QR-open đã kiểm tra; snapshot gốc giữ nguyên hash. Thay đổi chưa được deploy production.
+
 ## Chưa thu hồi
 
 - HTML, `/js/app.js`, `/css/app.css` và các Static Assets gốc. Tải origin công khai bị proxy môi trường chặn `403`; API đọc đã dùng trả module và cấu hình assets, không trả nội dung Static Assets.

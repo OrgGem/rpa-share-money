@@ -13,7 +13,8 @@
     "check": "node scripts/check-export.mjs",
     "pretest": "npm run build",
     "test": "node --import ./tests/cloudflare-runtime-stub.mjs --test tests/*.test.mjs",
-    "test:browser": "node scripts/test-money-layout.mjs"
+    "test:browser": "node scripts/test-money-layout.mjs && node scripts/test-bank-prefetch-browser.mjs",
+    "pretest:browser": "npm run build"
   },
   "devDependencies": {
     "playwright": "1.64.1"

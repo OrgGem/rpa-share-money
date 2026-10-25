@@ -35,3 +35,12 @@ test('new Worker keeps HEAD empty and does not alter unrelated or failed assets'
   assert.equal(await html.text(), '<h1>Base asset</h1>');
   assert.equal(html.headers.get('ETag'), 'synthetic-etag');
 });
+
+test('built wrapper injects prefetch before init and keeps QR-open checks fresh', async()=>{
+  const base='const row = `${displayName(a.userId)} <b>${money(a.amount)}</b> `;\nconst header = `<div><div class="money">${money(n.total)}</div>`;\ninit();';
+  const response=await worker.fetch(new Request('https://example.invalid/js/app.js'),assetEnv(base),{});
+  const code=await response.text();
+  assert.match(code,/prefetch\(result.pay.groups\)/);
+  assert.match(code,/readCreditor\(p.userId,\{fresh:true\}\)/);
+  assert.ok(code.indexOf('prefetch(result.pay.groups)')<code.lastIndexOf('init();'));
+});
