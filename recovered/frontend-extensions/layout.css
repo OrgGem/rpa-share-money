@@ -1,0 +1,54 @@
+
+/* Keep participant details flexible and payment action in its own column. */
+.people .person{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:6px 12px;flex:1 1 100%;min-width:0;max-width:100%}
+.people .person-details{grid-column:1;min-width:0;overflow-wrap:anywhere;white-space:normal}
+.people .person-details b{display:block;max-width:100%;white-space:normal;overflow-wrap:anywhere}
+.people .person-details .temporary-label{max-width:100%;white-space:normal;overflow-wrap:anywhere;margin-left:0}
+.people .person>button{grid-column:2;grid-row:1;justify-self:end;align-self:center;margin-left:0;white-space:nowrap}
+.people .person>small{grid-column:1;white-space:normal;overflow-wrap:anywhere}
+
+/* Keep note total and edit/delete actions on one row. */
+.note .note-header{display:block}
+.note .note-total-row{display:flex;align-items:center;gap:4px;margin-top:12px}
+.note .note-total-row .money{margin-right:auto;min-width:0;white-space:normal;overflow-wrap:anywhere}
+.note .note-total-row>.linkbutton{flex:0 0 auto;white-space:nowrap}
+.local-member-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:8px 0}
+.local-member-toolbar small{min-width:0;overflow-wrap:anywhere}
+.local-member-toolbar button{flex:0 0 auto;white-space:nowrap;padding:8px 11px}
+.local-member-hint{display:block;line-height:1.5}
+.local-member-choices .choose,.local-preferred-options .choose{min-width:0;overflow-wrap:anywhere}
+.local-member-choices .choose input,.local-preferred-options .choose input{flex:0 0 auto}
+.local-member-settings p{line-height:1.5;overflow-wrap:anywhere}
+.local-member-settings #localPreferredMessage:empty{display:none}
+@media(max-width:760px){.modal .allocation{grid-template-columns:minmax(0,1fr) auto minmax(65px,100px)}.modal .allocation>span{min-width:0;overflow-wrap:anywhere}}
+.settings-shortcut{min-width:36px;min-height:36px;padding:6px!important;font-size:22px;line-height:1}
+.settings-shortcut.on{background:var(--green,#246951);color:#fff}
+.settings-shortcut:focus-visible{outline:2px solid currentColor;outline-offset:3px}
+header.top .brand{flex:0 0 40px;margin-right:8px}
+header.top .brand .logo{margin-right:0}
+.filters.payment-filters{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+.payment-filter-field{min-width:0}
+.payment-filter-field input,.payment-filter-field select{min-width:0;max-width:100%;margin:0}
+.header-icon-actions{display:flex;align-items:center;gap:4px;flex:0 0 auto;white-space:nowrap}
+.logout-shortcut{box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;flex:0 0 36px;width:36px;height:36px;min-height:36px;padding:6px!important;line-height:1}
+.logout-shortcut .logout-icon{display:block;width:20px;height:20px;flex:none;pointer-events:none}
+.logout-shortcut:focus-visible{outline:2px solid var(--green);outline-offset:3px}
+.report-date-controls{display:grid;gap:12px;margin:20px 0}
+.report-filter-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
+.report-filter-field{min-width:0;margin:0}
+.report-filter-row select,.report-filter-row input{display:block;min-width:0;max-width:100%;margin-top:0}
+.report-range-hint,.report-range-summary{display:block;line-height:1.5;overflow-wrap:anywhere}
+.report-period-picker{display:flex;align-items:stretch;gap:4px;margin-top:0}
+.report-period-picker select{margin-top:0;min-width:0;flex:1}
+.report-month-nav{display:grid;grid-template-rows:1fr 1fr;flex:0 0 24px;gap:2px}
+.report-month-nav button{padding:0;border-radius:5px;font-size:10px;line-height:1;min-width:0}
+@media(max-width:430px){.report-filter-row{gap:8px}.report-filter-row input,.report-filter-row select{padding:9px 5px}}
+.calendar-footer{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-top:6px}
+.calendar-footer .calendar-legend{flex:1;min-width:0;flex-wrap:wrap;gap:3px 8px;margin-top:0;justify-content:flex-start}
+.mini-calendar .calendar-footer{background:inherit}
+.mini-calendar .calendar-mode-toggle{box-sizing:border-box;flex:0 0 32px;width:32px;min-width:32px;max-width:32px;height:32px;min-height:32px;max-height:32px;display:inline-flex;align-items:center;justify-content:center;white-space:nowrap;padding:5px;border-radius:8px;font-size:17px;line-height:1;background:inherit;color:var(--green)}
+.mini-calendar .calendar-mode-toggle:focus-visible{outline:2px solid var(--green);outline-offset:3px}
+.mini-calendar .calendar-date-button{padding:1px 0 0;background:transparent;color:inherit;border-radius:7px;font-weight:400;min-width:0}
+.calendar-selected .calendar-number{outline:1px solid var(--green);outline-offset:1px}
+.calendar-storage-message{display:block;margin-top:5px;font-size:9px;line-height:1.4;overflow-wrap:anywhere}
+.mini-calendar .calendar-month-title{min-width:0;overflow-wrap:anywhere}

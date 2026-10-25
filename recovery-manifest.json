@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "recovered_on": "2026-10-25",
+  "provenance": "Cloudflare read-only deployed Worker script download; serving deployment checked before and after transfer. Private infrastructure identifiers omitted.",
+  "recovery_complete": false,
+  "original_source_recovered": false,
+  "missing": [
+    "Original frontend Static Assets including HTML, base app.js and app.css",
+    "Original pre-bundle source modules and source maps",
+    "Original build configuration and dependency lockfile",
+    "Google Apps Script project, manifest, data schema and data"
+  ],
+  "artifacts": [
+    {
+      "path": "recovered/frontend-extensions/bank-qr-host.js",
+      "kind": "decoded-embedded-artifact",
+      "bytes": 2946,
+      "sha256": "5fa51cf2a21db3680fbf1bd278e3d73a179e629a5eb235d1070bbd16998c8a4a",
+      "derived_from": "recovered/worker/ui-wrapper.mjs"
+    },
+    {
+      "path": "recovered/frontend-extensions/bank-qr.bundle.js",
+      "kind": "decoded-embedded-artifact",
+      "bytes": 174900,
+      "sha256": "033697bf6ba77d469d7874c829ee435aefb72c82e005c8930ea5701c012d77c0",
+      "derived_from": "recovered/worker/ui-wrapper.mjs"
+    },
+    {
+      "path": "recovered/frontend-extensions/bank-qr.css",
+      "kind": "decoded-embedded-artifact",
+      "bytes": 2797,
+      "sha256": "b55b7e178379c8154599d8c3f129dbaaa52fdc1e71eada3a585539b6c78f5bea",
+      "derived_from": "recovered/worker/ui-wrapper.mjs"
+    },
+    {
+      "path": "recovered/frontend-extensions/calendar-mode.js",
+      "kind": "decoded-embedded-artifact",
+      "bytes": 12907,
+      "sha256": "e168350b77b7e2312b7041b717dc777cf009e880d7ff6f7b4109ed17aab7dde3",
+      "derived_from": "recovered/worker/ui-wrapper.mjs"
+    },
+    {
+      "path": "recovered/frontend-extensions/layout.css",
+      "kind": "decoded-embedded-artifact",
+      "bytes": 4829,
+      "sha256": "05e2957b87d95684b63fe0b9a99801909204de49b2dd2ed66a8caa5a48a0dcea",
+      "derived_from": "recovered/worker/ui-wrapper.mjs"
+    },
+    {
+      "path": "recovered/frontend-extensions/local-preferences.js",
+      "kind": "decoded-embedded-artifact",
+      "bytes": 12226,
+      "sha256": "d889142624b64224c9dde4d34a23d33354bc213bfb4967fdefbed36be7e0c826",
+      "derived_from": "recovered/worker/ui-wrapper.mjs"
+    },
+    {
+      "path": "recovered/frontend-extensions/obligations.css",
+      "kind": "decoded-embedded-artifact",
+      "bytes": 2595,
+      "sha256": "d892e6785b22af3d43b26feb8dfaeeaf01eaed7e605ceca828469c84507dbffe",
+      "derived_from": "recovered/worker/ui-wrapper.mjs"
+    },
+    {
+      "path": "recovered/frontend-extensions/obligations.js",
+      "kind": "decoded-embedded-artifact",
+      "bytes": 12284,
+      "sha256": "6a776b3bd42606c8f298e90052203e3b599bce0beff8e617d136f3ab0e674c92",
+      "derived_from": "recovered/worker/ui-wrapper.mjs"
+    },
+    {
+      "path": "recovered/frontend-extensions/presentation-labels.js",
+      "kind": "decoded-embedded-artifact",
+      "bytes": 6397,
+      "sha256": "6dfcccc561080ac2d1fa8486539af0b2a02424985d2dee306fe71af45375b8e4",
+      "derived_from": "recovered/worker/ui-wrapper.mjs"
+    },
+    {
+      "path": "recovered/frontend-extensions/report-date.js",
+      "kind": "decoded-embedded-artifact",
+      "bytes": 10969,
+      "sha256": "38b1e8dd578004b6dfc8162e7aa562ba76ea6377fd35ce44a0a274542d99badd",
+      "derived_from": "recovered/worker/ui-wrapper.mjs"
+    },
+    {
+      "path": "recovered/worker/bank-profile.mjs",
+      "kind": "deployed-module",
+      "bytes": 13299,
+      "sha256": "7c186526d6f4535de44d56ba1b09a6b3ba9e68ebf201ffa6c872acb6f08bf4e7",
+      "sanitization": "One environment-specific profile scope literal replaced with example-bank-profile-scope-v1."
+    },
+    {
+      "path": "recovered/worker/entrypoint.js",
+      "kind": "deployed-module",
+      "bytes": 88763,
+      "sha256": "5b66a6e0bf63dc321e7a8d9f83e7a2f8da3b13b38da1083aebbb3a578442bcd7"
+    },
+    {
+      "path": "recovered/worker/ui-wrapper.mjs",
+      "kind": "deployed-module",
+      "bytes": 254263,
+      "sha256": "7e25e05c7b997fba0798356a8e78242f52fd3895f41bbd9d8d20eba7f67cc96e"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+node_modules/
+.wrangler/
+.env
+.env.*
+!.env.example
+.dev.vars
+.dev.vars.*
+*.pem
+*.key
+*.log
+test-results/
+playwright-report/
+__pycache__/
+private/

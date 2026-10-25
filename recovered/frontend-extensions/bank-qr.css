@@ -1,0 +1,27 @@
+.rpa-bank-settings{margin-top:18px;padding:16px;border:1px solid #d5e2d9;border-radius:14px;background:white}
+.rpa-bank-settings p,.rpa-bank-settings small{display:block;font-size:13px;line-height:1.5;color:#52675c}
+.rpa-bank-settings label{display:grid;gap:5px;margin:12px 0}
+.rpa-bank-settings input,.rpa-bank-settings select{box-sizing:border-box;width:100%;min-width:0;padding:10px;border:1px solid #c9d8cf;border-radius:8px;font:inherit}
+.bank-qr-actions{display:flex;gap:8px;flex-wrap:wrap}
+.bank-qr-actions button{padding:10px 14px;border-radius:8px;border:0;background:#246951;color:white}
+.bank-qr-actions button:disabled{opacity:.5}
+.rpa-bank-qr-icon{flex:none!important;display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;padding:5px;border:1px solid #ccded2;border-radius:7px;background:white;color:#246951}
+.rpa-bank-qr-icon:focus-visible{outline:2px solid #246951;outline-offset:2px}
+.rpa-bank-qr-dialog{box-sizing:border-box;width:min(380px,calc(100vw - 24px));max-height:calc(100vh - 32px);padding:20px;border:0;border-radius:16px;text-align:center;overflow:auto;color:#193e30}
+.rpa-bank-qr-dialog::backdrop{background:#10251aaa}
+.rpa-bank-qr-dialog .qr-close{box-sizing:border-box;float:right;display:inline-flex;align-items:center;justify-content:center;flex:0 0 44px;width:44px;min-width:44px;max-width:44px;height:44px;min-height:44px;max-height:44px;padding:0;line-height:1;border:0;border-radius:7px;background:#edf5f0;color:#246951}
+.rpa-bank-qr-dialog img{display:block;width:100%;height:auto;max-width:300px;margin:0 auto;cursor:default}
+.rpa-bank-qr-dialog .bank-account{overflow-wrap:anywhere;font-size:18px;font-weight:600}
+.rpa-bank-qr-dialog small{display:block;line-height:1.5;margin-top:10px;color:#52675c}
+.bank-qr-stage{min-height:280px;display:grid;place-items:center}
+.bank-qr-loading{display:grid;justify-items:center;gap:14px;padding:36px 12px}
+.bank-qr-spinner{display:block;width:32px;height:32px;border:4px solid #d9e8de;border-top-color:#246951;border-radius:50%;animation:rpa-qr-spin 1s linear infinite}
+.bank-qr-share{display:block;width:100%;padding:0;border:0;background:white;cursor:pointer;border-radius:8px}
+.bank-qr-share:focus-visible{outline:3px solid #246951;outline-offset:3px}
+.rpa-bank-qr-dialog .bank-qr-share img{cursor:pointer}
+.bank-qr-download,.bank-qr-stage button:not(.bank-qr-share){padding:10px 14px;border:0;border-radius:8px;background:#246951;color:white;font:inherit}
+@keyframes rpa-qr-spin{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.bank-qr-spinner{animation:none}}
+
+.rpa-bank-qr-dialog .qr-close svg{display:block;flex:none;width:20px;height:20px;margin:0;pointer-events:none}
+.rpa-bank-qr-dialog .qr-close:focus-visible{outline:2px solid #246951;outline-offset:2px}

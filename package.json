@@ -1,0 +1,13 @@
+{
+  "name": "rpa-share-money-recovered",
+  "version": "0.0.0-recovery",
+  "private": true,
+  "type": "module",
+  "description": "Sanitized deployed bundles; incomplete application recovery",
+  "engines": { "node": ">=24" },
+  "scripts": {
+    "extract": "python3 scripts/extract-embedded.py",
+    "check": "node scripts/check-export.mjs",
+    "test": "node --import ./tests/cloudflare-runtime-stub.mjs --test tests/*.test.mjs"
+  }
+}

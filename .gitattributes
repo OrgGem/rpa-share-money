@@ -1,0 +1,4 @@
+# Preserve byte-identical deployed and upstream text, including original EOF blanks.
+recovered/worker/ui-wrapper.mjs whitespace=-blank-at-eof
+third-party-licenses/jsqr-LICENSE.txt whitespace=-blank-at-eof
+third-party-licenses/qrcode-LICENSE.txt whitespace=-blank-at-eof

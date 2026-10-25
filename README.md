@@ -1,44 +1,40 @@
-# RPA Money — recovered source snapshot
+# RPA Money — bản khôi phục từ deployment
 
-This is a sanitized snapshot of the recoverable RPA money application code. It is **not a complete backup and cannot rebuild the original deployed application on its own**.
+Kho này lưu **bundle đã triển khai được thu hồi và làm sạch ngày 25/10/2026**. Đây là bản khôi phục một phần, chưa thể build hoặc triển khai lại toàn bộ ứng dụng.
 
-Included:
-- Cloudflare gateway backend bundle (Apps Script RPC/authentication/cache/outbox integration).
-- Editable bank QR/profile service, private R2 adapter, local QR import/generation, filtered debt amounts, loading/file-share UI, presentation labels and regression tests.
-- Recovered browser wrapper source: date/calendar, preferences, obligations, QR and label integration.
-- Source-only assembly baselines, build scripts and synthetic test fixtures.
-- Required third-party license notices.
+Tài liệu chính: **[Kiến trúc và giới hạn khôi phục](docs/ARCHITECTURE.md)**.
 
-Missing:
-- Original frontend Static Assets, including the base `/js/app.js`, HTML, CSS and other assets.
-- Original editable gateway modules before bundling (the recovered gateway is a readable assembled bundle).
-- Google Apps Script backend project and its manifest.
-- Production data, credentials, deployment identifiers and configuration values.
+## Đã thu hồi
 
-No operational logs, deployment receipts, uploaded screenshots, real QR payloads, bank profiles, OAuth files or old Git history are included. Account identifiers in tests are synthetic. Bank BIN catalog entries are public routing metadata.
+- [Ba module Worker](recovered/worker/): gateway gọi Google Apps Script, Durable Object `WriteOutbox`, dịch vụ hồ sơ ngân hàng/QR và wrapper giao diện.
+- [Mười phần mở rộng frontend](recovered/frontend-extensions/): giải mã trực tiếp từ chuỗi nhúng trong `ui-wrapper.mjs`, gồm QR, công nợ, bộ lọc ngày, âm lịch, tùy chọn trình duyệt và nhãn hiển thị. Bundle QR vẫn là mã đã minify.
+- [Manifest kiểm tra SHA-256](recovery-manifest.json), [ghi chép khôi phục](docs/RECOVERY.md), kiểm tra cục bộ và [thông báo thư viện bên thứ ba](THIRD_PARTY_NOTICES.md).
 
-Kiến trúc và giới hạn bằng chứng: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+Các file kiểm tra, công cụ và tài liệu được viết mới cho lần khôi phục này; chúng không phải bộ test/build gốc. Không nhập lại export hoặc checkout từ phiên cũ.
 
-Snapshot includes the latest status capitalization, narrowly scoped personal-summary removal, centered QR close control and Vietnamese amount display.
+## Chưa thu hồi
 
-## Local maintenance
+- HTML, `/js/app.js`, `/css/app.css` và các Static Assets gốc. Tải origin công khai bị proxy môi trường chặn `403`; API đọc đã dùng trả module và cấu hình assets, không trả nội dung Static Assets.
+- Các module nguồn trước khi bundle/minify, source map và cấu hình build/dependency lock gốc.
+- Dự án Google Apps Script, `appsscript.json`, schema và dữ liệu lưu trữ phía backend. Việc có RPC tới GAS không chứng minh được backend đang dùng Sheets hay cấu trúc bảng cụ thể.
 
-Use Node.js 22 or newer. From `bank-qr/` run:
+Wrapper frontend cần asset gốc và các biến/hàm của nó; mười phần được giải mã không phải ứng dụng frontend độc lập. Tên đường dẫn `src/...` trong bundle là dấu vết bundler, không có nghĩa đã khôi phục các file nguồn đó.
+
+## Kiểm tra cục bộ
+
+Cần Node.js 24 trở lên và Python 3. Không cần cài package bên ngoài:
 
 ```sh
-npm ci
-npm run build
-npm run prepare:worker
+npm run check
 npm test
-npm run test:browser
 ```
 
-Browser tests need Playwright and Chromium. Install a browser with `npx playwright install chromium`, or set `CHROMIUM_PATH` to an installed Chromium executable. Tests only use synthetic data and mocked services/native sharing. Generated test output is ignored.
+`npm run extract` giải mã lại mười phần frontend từ wrapper. Nếu chủ động sửa artifact, phải cập nhật manifest sau khi rà soát lại; `check` chỉ xác minh, không tự ghi đè hash để làm test đạt.
 
-`prepare:worker` assembles recovered Worker modules under `bank-qr/candidate/`. Successful assembly/tests do **not** restore the missing frontend assets or Apps Script backend. Obtain those missing components before attempting a complete deployment.
+Kiểm tra dùng dữ liệu giả và dịch vụ giả, không gọi production. Không có lệnh deploy hoặc workflow triển khai. Test import shim không mô phỏng Durable Object SQLite/alarms hay trình duyệt thực.
 
-`wrangler.example.jsonc` is illustrative only. Fill in your own configuration and review bindings, Durable Object migrations and the existing GAS contract. Set secret values with your own secret-management workflow. There is no automatic deployment workflow.
+## Phạm vi công khai
 
-Bank profiles remain private, one JSON object per verified UUID. Settings QR has no amount; payment QR derives a fresh filtered amount. File sharing uses a user-selected native chooser where supported, with a local image-download fallback.
+Đã loại metadata tài khoản/hạ tầng, tên bucket, deployment binding IDs, giá trị biến môi trường và một scope riêng được hardcode trong dịch vụ R2. Scope này được thay bằng ví dụ; cần chọn và kiểm tra scope của hệ thống riêng trước khi sử dụng. Không lấy secret values, dữ liệu người dùng, hồ sơ ngân hàng, QR thật hoặc log vận hành.
 
-Third-party licenses are in `third-party-licenses/` and `bank-qr/vendor/`. No blanket first-party license is added by this export.
+Danh mục BIN/ngân hàng là metadata định tuyến công khai. Fixture `DEMO123` và UUID giả bắt đầu bằng số 0 là dữ liệu giả. Thông tin tác giả trong giấy phép thư viện được giữ để bảo toàn attribution. Kho không tự áp dụng giấy phép chung mới cho mã ứng dụng.
