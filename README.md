@@ -2,7 +2,7 @@
 
 Kho này lưu **bundle đã triển khai được thu hồi và làm sạch ngày 25/10/2026**. Đây là bản khôi phục một phần, chưa thể build hoặc triển khai lại toàn bộ ứng dụng.
 
-Tài liệu chính: **[Kiến trúc và giới hạn khôi phục](docs/ARCHITECTURE.md)**.
+Tài liệu chính: **[Kiến trúc hệ thống](docs/ARCHITECTURE.md)** và **[báo cáo EGM Review](docs/reviews/architecture-2026-10-25/consolidated_review_report.md)**. Kiến trúc phân biệt hệ thống đang chạy, bundle khôi phục và những phần chưa đủ để dựng lại độc lập.
 
 ## Đã thu hồi
 
@@ -16,7 +16,7 @@ Các file kiểm tra, công cụ và tài liệu được viết mới cho lần
 
 [Mã UI có thể chỉnh sửa](src/ui/) bổ sung cách hiển thị số tiền cùng đơn vị trên một dòng cho các tab, thẻ tổng, chi tiết khoản chi, công nợ và bảng. CSS giữ cụm tiền không ngắt dòng; phần đo kích thước chỉ giảm font khi thiếu chỗ và trả lại cỡ tự nhiên khi rộng hơn. Các nhãn/tên vẫn được xuống dòng riêng. Giá trị tiền, trạng thái thanh toán và quyền truy cập không thay đổi.
 
-[Worker mới](src/worker.mjs) bọc snapshot đã thu hồi và nối phần UI vào hai response `/js/app.js`, `/css/app.css`. Các snapshot trong `recovered/` giữ nguyên để đối chiếu bằng chứng. `npm run build` chỉ tạo module chuỗi UI tại `.build/`; không khôi phục HTML/CSS/JS nền hoặc tạo ra một bản app đầy đủ. `package-lock.json` mới khóa công cụ test của repo, không phải dependency lock gốc đã thu hồi.
+[Worker mới](src/worker.mjs) bọc snapshot đã thu hồi và nối phần UI vào hai response `/js/app.js`, `/css/app.css`. Các snapshot trong `recovered/` giữ nguyên để đối chiếu bằng chứng. `npm run build` tạo wrapper dẫn xuất và module chuỗi UI tại `.build/`; không khôi phục HTML/CSS/JS nền hoặc tạo ra một bản app đầy đủ. `package-lock.json` mới khóa công cụ test của repo, không phải dependency lock gốc đã thu hồi.
 
 Bản sửa đã được triển khai production ngày 25/10/2026; xem [biên bản triển khai](docs/DEPLOYMENT.md). Muốn tích hợp cần dùng entrypoint mới, giữ bộ Static Assets hiện có, cấu hình binding/scope riêng phù hợp và kiểm thử trên môi trường đầy đủ.
 

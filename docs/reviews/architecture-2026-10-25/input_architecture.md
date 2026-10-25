@@ -1,0 +1,152 @@
+# Kiến trúc ứng dụng ghi chú chi tiêu RPA Money
+
+Trạng thái: bản viết lại ngày 25/10/2026, đang chờ review EGM. Tài liệu mô tả hệ thống đang có; các việc đề xuất ở cuối chưa được triển khai. Không xem bản này là chứng nhận bảo mật hoặc bằng chứng đã khôi phục đầy đủ nguồn.
+
+## 1. Mục đích và phạm vi
+
+Ứng dụng ghi lại khoản chi, người trả trước và phần phân bổ cho từng người; từ đó hiển thị khoản cần trả, cần thu và trạng thái thanh toán. Người dùng có thể lưu hồ sơ ngân hàng và tạo QR để chuyển khoản bằng ứng dụng ngân hàng của họ. Các endpoint payment ghi nhận trạng thái trong sổ chi tiêu; mã đã thu hồi không chứng minh có chức năng tự chuyển tiền qua ngân hàng.
+
+Các tab dùng chung session và dữ liệu được backend cấp quyền. Bộ lọc ngày/phạm vi và lựa chọn cách hiển thị là trạng thái giao diện. Tên user, hồ sơ ngân hàng, ghi chú và chi tiết tài chính thật không nằm trong tài liệu hoặc fixture của repo.
+
+## 2. Bằng chứng và phần chưa biết
+
+| Thành phần | Bằng chứng có thể kiểm tra | Giới hạn |
+| --- | --- | --- |
+| Mã UI mới | [src/worker.mjs](../../../src/worker.mjs), [src/ui/](../../../src/ui/) | Cần frontend nền và wrapper để chạy |
+| Gateway và hồ sơ ngân hàng | [recovered/worker/](../../../recovered/worker/) | Bundle triển khai, không phải module nguồn trước build |
+| Các phần frontend bổ sung | [recovered/frontend-extensions/](../../../recovered/frontend-extensions/) | Giải mã từ chuỗi nhúng; QR bundle còn minify |
+| Static Assets | Binding và cấu hình Cloudflare; [biên bản deploy](../../DEPLOYMENT.md) | HTML, app.js, app.css nền chưa có trong repo |
+| Google Apps Script | Hợp đồng gọi RPC trong gateway | Chưa có project, manifest, schema hoặc implementation phía GAS |
+| Phiên bản phục vụ | Cloudflare Deployments API đối chiếu lại ngày 25/10/2026 | Không thay thế kiểm tra website qua trình duyệt |
+
+Production được xác nhận chạy bản UI và QR prefetch triển khai lúc 12:45:26 UTC, lấy thay đổi từ commit `8c69077f1c45d3da6c79d29609d00adf2a15840c`. Deployment được kiểm tra lại trong lần viết tài liệu này, vẫn phục vụ 100% traffic. Đường dẫn vào mới được xác nhận khi upload là `money-layout-worker.mjs`; khác với suy luận entrypoint ở bản khôi phục ban đầu.
+
+Không có bằng chứng xác nhận sổ chi tiêu lưu trong Google Sheets, D1, KV hoặc một database cụ thể khác. SQLite được thấy trong Durable Object chỉ chứng minh nơi lưu hàng đợi ghi. Không suy ra schema backend từ tên action RPC.
+
+## 3. Các thành phần và ranh giới
+
+```mermaid
+flowchart TD
+    User[Người dùng]
+    Browser[Trình duyệt: frontend nền và phần mở rộng]
+    Assets[Static Assets hiện có trên Cloudflare]
+    Money[Worker ngoài: hiển thị tiền]
+    Wrapper[Wrapper dẫn xuất: ghép UI và metadata auth]
+    Gateway[Gateway: route API, xác thực request, RPC]
+    Profiles[Dịch vụ hồ sơ ngân hàng]
+    R2[(R2 riêng: hồ sơ ngân hàng)]
+    Cache[(Cache API: snapshot bootstrap)]
+    Outbox[(WriteOutbox: SQLite và alarm)]
+    GAS[Google Apps Script: authority nghiệp vụ chưa có nguồn]
+    Unknown[Kho dữ liệu phía GAS: chưa xác minh]
+    User --> Browser
+    Browser -->|HTML và asset không cần Worker| Assets
+    Browser -->|API và JS/CSS cần xử lý| Money
+    Money --> Wrapper
+    Wrapper --> Gateway
+    Gateway -->|asset nền| Assets
+    Gateway --> Profiles
+    Profiles --> R2
+    Profiles -->|xác minh actor và công nợ| GAS
+    Gateway --> Cache
+    Gateway -->|ghi có operation ID| Outbox
+    Gateway -->|đọc, auth hoặc ghi trực tiếp| GAS
+    Outbox -->|applyQueuedMutation| GAS
+    GAS -.-> Unknown
+```
+
+Cloudflare chạy Worker trước cho `/api`, `/api/*`, `/js/app.js`, `/css/app.css`; các asset phù hợp còn lại có thể được phục vụ trực tiếp. Mã Worker ngoài chuyển request vào wrapper/gateway, rồi nối phần hiển thị tiền vào response JS/CSS thành công. Nó không thay đổi payload nghiệp vụ của API.
+
+GAS xác nhận session và xử lý nghiệp vụ qua RPC. `X-RPA-Actor` là điều kiện đối chiếu với actor do server xác minh, không phải nguồn xác định danh tính. R2 giữ hồ sơ ngân hàng riêng; frontend chỉ nhận hồ sơ qua API kiểm tra quyền.
+
+## 4. Mô hình dữ liệu nhìn thấy từ mã
+
+| Khái niệm | Trường hoặc quy tắc quan sát được |
+| --- | --- |
+| User | id, active, role; có trạng thái user tạm và assignedTo |
+| Khoản chi | id, revision, date, payerId, allocations; có deleted và thông tin hiển thị |
+| Phần phân bổ | userId, amount nguyên an toàn, paid; có metadata xác nhận/thanh toán |
+| Nhóm công nợ | nhóm theo người đối ứng; tổng tiền là chuỗi để trao đổi với UI |
+| Hồ sơ ngân hàng | ownerId, bankBin, accountNumber, revision, updatedAt; không xác nhận tên chủ tài khoản |
+| Tác vụ ghi | operation ID, actor, action, params/digest, trạng thái và kết quả/lỗi |
+
+Mô hình công nợ chọn revision mới nhất của từng khoản, bỏ khoản đã xóa và phần đã trả; loại dữ liệu mâu thuẫn thay vì hiển thị tổng không đủ tin cậy. Phần tự phân bổ cho người trả trước không trở thành nợ của chính người đó. Tổng cần trả và cần thu được cộng riêng bằng BigInt; không tự bù trừ hai chiều thành một số ròng. Đây là logic nhìn thấy trong model giao diện, không phải schema lưu trữ GAS được khôi phục.
+
+## 5. Luồng vào app và tải dữ liệu
+
+1. Trình duyệt lấy HTML và tài nguyên nền. Với app.js/app.css, wrapper bổ sung chức năng trước khi response tới trình duyệt.
+2. API session/bootstrap xác minh dữ liệu qua GAS. Cookie session dùng Secure, HttpOnly và SameSite=Lax; kiểm tra định dạng ở gateway không thay thế xác minh session upstream.
+3. Bootstrap có thể dùng snapshot Cache API với TTL 15 giây, nhưng vẫn gọi GAS để đối chiếu version và thông tin user trước khi dùng lại. Đây không phải cache dùng chung một snapshot cho mọi user.
+4. Khi dữ liệu công nợ hợp lệ được render, host QR khởi động đọc hồ sơ các chủ nợ, kể cả khi chưa chọn “Cần trả”.
+
+Cache bootstrap phía Worker và cache hồ sơ phía trình duyệt là hai cơ chế riêng. Cache bootstrap có khóa HMAC gắn origin, backend URL và token; cache hồ sơ nằm trong bộ nhớ trang và gắn actor, khoảng ngày, scope, nội dung notes.
+
+## 6. Luồng ghi và đối soát
+
+Mutation phải qua kiểm tra Origin, Content-Type JSON, CSRF và tham số route. Gateway đóng gói RPC bằng envelope có requestId, timestamp, nonce, payload và chữ ký HMAC-SHA256; chỉ chấp nhận URL GAS và redirect Content Service phù hợp.
+
+Nếu có header `X-RPA-Operation-Id` hợp lệ, các action được hỗ trợ đi qua WriteOutbox; nếu không có header, route tương ứng gọi GAS trực tiếp. Việc frontend nền có gửi header trong mọi thao tác hay không chưa thể kiểm tra đầy đủ khi nguồn nền còn thiếu.
+
+```mermaid
+stateDiagram-v2
+    [*] --> pending: enqueue được chấp nhận
+    pending --> processing: alarm chọn tác vụ
+    processing --> confirmed: GAS xác nhận hoàn tất cùng ID
+    processing --> failed: lỗi vĩnh viễn, không cần đối soát tiếp
+    processing --> uncertain: chưa xác định kết quả
+    uncertain --> processing: thử đối soát cùng ID nếu được phép
+    uncertain --> uncertain: cần review, dừng tự thử lại
+```
+
+WriteOutbox lưu lease và operations trong SQLite, mã hóa token bằng AES-GCM, kiểm tra operation ID và digest, rồi xử lý bằng alarm. Trạng thái accepted/HTTP 202 không có nghĩa tiền đã được ghi thành công. Một số tình huống uncertain yêu cầu người dùng đối soát thay vì tạo yêu cầu thay thế.
+
+Chưa thể cam kết exactly-once đầu cuối: implementation idempotency và giao dịch phía GAS chưa có nguồn để kiểm chứng. Luồng ghi trực tiếp cũng cần được xem riêng khi đánh giá retry và khả năng ghi trùng.
+
+## 7. Hồ sơ ngân hàng và QR
+
+Chỉ actor active, không thuộc trạng thái user tạm/đã gán theo điều kiện handler, mới được dùng API hồ sơ. Người dùng được đọc hồ sơ của mình. Để đọc hồ sơ chủ nợ, server lấy dữ liệu được GAS cấp quyền và xác nhận có khoản chưa trả trong bộ lọc ngày/scope. Debt amount được tính lại ở server và trả dạng chuỗi.
+
+R2 lưu một object `rpa_qr/<uuid>.json` cho mỗi owner. Ghi yêu cầu expectedRevision và điều kiện ETag/If-None-Match để phát hiện xung đột. Record có appScope; scope ví dụ trong repo public không được dùng để thay scope production. Không lấy object R2 thật để viết tài liệu.
+
+Host QR mới có hai đường đọc:
+
+- **Hiển thị icon:** tải trước tối đa bốn chủ nợ đồng thời trong mỗi đợt; dùng chung promise cho request trùng; giữ tối đa 100 kết quả thành công trong bộ nhớ trong 30 giây.
+- **Mở QR:** gọi với `{fresh:true}` để đọc mới hồ sơ và số tiền, sau đó bundle kiểm tra debtAmount khớp nhóm đang hiển thị trước khi tạo ảnh.
+
+Đổi actor, khoảng ngày, scope hoặc nội dung notes làm bỏ cache và loại kết quả context cũ. Request đã gửi không được hủy ở mức mạng. Giới hạn bốn request áp dụng cho một đợt prefetch, không phải cam kết giới hạn toàn cục cho mọi request hoặc thao tác mở QR. Nếu tải nền chưa xong, hoặc cache đã hết hạn, icon vẫn có thể phải chờ mạng; lỗi không được cache.
+
+QR thiết lập không mang số tiền; QR thanh toán dùng số tiền được xác nhận cho bộ lọc hiện tại. Đọc ảnh và tạo ảnh diễn ra trên thiết bị, có kiểm tra CRC và giới hạn ảnh. `nameVerified: false` không phải xác nhận tên người nhận. Ứng dụng ngân hàng bên ngoài thực hiện việc chuyển tiền.
+
+## 8. UI số tiền và ghép frontend
+
+[money-layout.css](../../../src/ui/money-layout.css) giữ số và đơn vị trong một cụm không ngắt dòng. [money-layout.js](../../../src/ui/money-layout.js) đo chiều rộng để giảm font qua biến CSS và phục hồi cỡ tự nhiên khi đủ chỗ. MutationObserver/ResizeObserver gom cập nhật qua requestAnimationFrame khi render, đổi tab hoặc đổi kích thước. Script giữ text và listener, bỏ qua input, select, vùng soạn thảo, code, SVG/canvas.
+
+Frontend mở rộng vẫn phụ thuộc các globals của asset nền: `D`, `render`, `tab`, `range`, `init` và các điểm ghép HTML. Wrapper cũ chỉ chèn các phần mở rộng khi marker khớp, rồi ghép trước `init();` cuối file. Overlay tiền được nối phía ngoài. Marker không khớp có thể khiến tính năng QR/prefetch không được chèn dù response JS vẫn thành công; không được xem HTTP 200 là bằng chứng tính năng đã hoạt động.
+
+## 9. Build, triển khai và vận hành
+
+`npm run build` tạo `.build/ui-wrapper.mjs` và `.build/money-layout-assets.mjs`. Nó thay host và đúng một điểm gọi QR-open, đồng thời sửa import cho cây thư mục cục bộ; các điều kiện replaceOnce không khớp làm build dừng. Nó không tạo frontend nền hoặc Apps Script.
+
+Bản triển khai production đã thực hiện có khác biệt có chủ đích: tải lại gateway và module hồ sơ đang chạy, giữ nguyên scope riêng, dùng mã UI mới từ repo, giữ assets bằng keep_assets và kế thừa binding strict. Đây là cập nhật trên hệ thống có sẵn, không phải một pipeline tái tạo đầy đủ từ public repo. Tên module trên Cloudflare và đường dẫn local khác nhau; không coi chúng là một artifact có cùng hash.
+
+Binding gồm ASSETS, APP_ORIGIN, ENVIRONMENT, hai rate limiter, WRITE_OUTBOX, BANK_PROFILES/BANK_PROFILE_SCOPE và ba secret GAS_API_URL/GAS_API_SECRET/SESSION_SECRET. Tài liệu chỉ ghi tên và vai trò; không chứa giá trị riêng, ID tài khoản, namespace, bucket hoặc dữ liệu user.
+
+Xem [biên bản triển khai](../../DEPLOYMENT.md), [ghi chép khôi phục](../../RECOVERY.md) và [manifest snapshot](../../../recovery-manifest.json). Repo chưa có workflow CI/deploy. Chưa xác minh quy trình backup/restore, RTO/RPO, quota vận hành hoặc cảnh báo SLO cho hệ thống đầu cuối.
+
+## 10. Kiểm chứng hiện có và giới hạn
+
+14 test Node xác nhận các hành vi tiêu biểu của gateway, hồ sơ, công nợ, wrapper và cache prefetch. Chromium kiểm tra bundle QR thực trong khung mô phỏng, cùng 1.125 trường hợp bố trí tiền trên năm độ rộng/năm tab mô phỏng. Hash của 13 artifact khôi phục được kiểm tra riêng. Các kiểm tra này không chứng minh nguồn frontend gốc đã được thu hồi.
+
+Cloudflare API xác nhận deployment, binding, tài nguyên và cấu hình. Request website từ môi trường này trước đó bị CONNECT proxy trả 403 trước origin; chưa có smoke test đăng nhập, OAuth, SQLite/alarm hoặc nghiệp vụ GAS đầu cuối trên website production. Không dùng kết quả test mock để tuyên bố các luồng đó đã đạt.
+
+## 11. Các rủi ro và việc cần hoàn thiện
+
+| Ưu tiên | Vấn đề | Việc cần làm và điều kiện hoàn tất |
+| --- | --- | --- |
+| Cao | Thiếu frontend nền và GAS, phụ thuộc production để cập nhật | Thu hồi hợp lệ nguồn/manifest/asset; dựng môi trường mới từ repo và chạy luồng đầy đủ bằng dữ liệu giả |
+| Cao | Chưa kiểm chứng ghi trùng và đối soát đầu cuối | Kiểm tra GAS applyQueuedMutation và đường ghi trực tiếp; thử timeout, retry cùng ID và khôi phục sau lỗi |
+| Cao | Ghép JS bằng chuỗi/marker phụ thuộc bundle | Thêm kiểm tra marker trong asset nền thật; xác nhận init và từng tính năng hoạt động; chỉ sau đó thay bằng module nguồn có giao diện rõ ràng |
+| Vừa | Prefetch có thể tăng tải GAS và không có bảo đảm icon xuất hiện tức thì | Đo số request đồng thời/độ trễ; kiểm tra context đổi nhanh và nhiều chủ nợ trước khi điều chỉnh giới hạn hoặc chiến lược cache |
+| Vừa | Giới hạn khả năng quan sát và phục hồi chưa xác minh | Xác định chủ sở hữu dữ liệu, backup/restore, cảnh báo lỗi RPC/outbox và kiểm thử khôi phục trong môi trường riêng |
+
+Các mục trên là đề xuất cần thiết kế và kiểm chứng tiếp, không phải thay đổi runtime được thực hiện trong lần viết tài liệu này. Không bổ sung giả định về backend lưu trữ để lấp phần nguồn còn thiếu.
