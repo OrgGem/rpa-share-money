@@ -1,6 +1,12 @@
 # Triển khai production ngày 25/10/2026
 
-## Bản hiện hành: sửa card tổng lúc 16:59:46 UTC
+## Bản hiện hành: màu card tổng lúc 17:09:25 UTC
+
+Cloudflare xác nhận phiên bản `b779508a-9ba8-4b8e-87f2-9fa4c0a6a110` phục vụ 100% traffic. Mã sửa tại commit [65f1068](https://github.com/OrgGem/rpa-share-money/commit/65f1068e246ba4a6fb9dbfe060c96b96e9b77231): card “Đã thanh toán” và “Tổng phần được chia” dùng nền trắng, chữ đen trên các tab chi tiêu. Nhận diện theo nhãn và giá trị tiền; không đổi màu nút, khoản chi hoặc modal.
+
+Đã thay literal presentationLabels và module CSS overlay bằng đúng bản build đã kiểm tra. Năm module sau upload khớp checksum dự kiến; gateway, hồ sơ ngân hàng, entrypoint ngoài, binding/settings, Static Assets, migration và route giữ nguyên. Kiểm tra đạt 14 test Node, 1.125 trường hợp bố cục tiền, QR và 17 trường hợp bộ lọc/card có kiểm tra màu computed style của card, nhãn và số tiền trong Chromium. Giới hạn kiểm tra website qua proxy bên dưới vẫn áp dụng.
+
+## Bản sửa card tổng lúc 16:59:46 UTC
 
 Cloudflare xác nhận phiên bản `91590338-8a6b-4df7-943a-0f371e304b89` phục vụ 100% traffic của `https://rpa.gemslab.id.vn`. Mã sửa tại commit [4a83c25](https://github.com/OrgGem/rpa-share-money/commit/4a83c257d29c81eb41bd17c9b872b2b50568e281).
 
