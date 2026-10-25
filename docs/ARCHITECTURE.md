@@ -126,7 +126,7 @@ Không công khai account/zone/namespace ID, tên bucket thực, metadata tác g
 
 Cỡ font tự nhiên vẫn lấy từ CSS giao diện. Khi độ rộng chữ vượt chỗ được cấp, script đo và đặt biến CSS `--rpa-money-size` để thu nhỏ; không cắt bớt số, không dùng dấu ba chấm. ResizeObserver và MutationObserver gom cập nhật qua requestAnimationFrame để xử lý đổi tab, render lại, tải font và xoay/đổi kích thước màn hình. Khi đủ chỗ, biến được bỏ để font trở về cỡ tự nhiên. API `window.RpaMoneyLayout.destroy()` tháo observer/listener khi cần thay lớp hiển thị.
 
-`npm run build` tạo `.build/money-layout-assets.mjs` từ hai file UI để Worker import; đây là bước ghép mới, không phải build gốc. Các bài Playwright dùng Chromium thật với DOM mô phỏng từ các cấu trúc đã thấy trong snapshot, chưa xác minh toàn bộ markup frontend gốc. Bộ test kiểm tra số/đơn vị không ngắt dòng, không tràn thẻ hoặc đè nút, giữ nguyên text/ô nhập và hoạt động click, cùng khả năng tăng font trở lại khi nới màn hình. Bản UI mới chưa triển khai production.
+`npm run build` tạo `.build/money-layout-assets.mjs` từ hai file UI để Worker import; đây là bước ghép mới, không phải build gốc. Các bài Playwright dùng Chromium thật với DOM mô phỏng từ các cấu trúc đã thấy trong snapshot, chưa xác minh toàn bộ markup frontend gốc. Bộ test kiểm tra số/đơn vị không ngắt dòng, không tràn thẻ hoặc đè nút, giữ nguyên text/ô nhập và hoạt động click, cùng khả năng tăng font trở lại khi nới màn hình. Bản UI mới cùng tải trước hồ sơ QR đã triển khai production ngày 25/10/2026; xem [biên bản triển khai](DEPLOYMENT.md).
 
 ## Build, kiểm thử và giới hạn khôi phục
 

@@ -18,13 +18,13 @@ Các file kiểm tra, công cụ và tài liệu được viết mới cho lần
 
 [Worker mới](src/worker.mjs) bọc snapshot đã thu hồi và nối phần UI vào hai response `/js/app.js`, `/css/app.css`. Các snapshot trong `recovered/` giữ nguyên để đối chiếu bằng chứng. `npm run build` chỉ tạo module chuỗi UI tại `.build/`; không khôi phục HTML/CSS/JS nền hoặc tạo ra một bản app đầy đủ. `package-lock.json` mới khóa công cụ test của repo, không phải dependency lock gốc đã thu hồi.
 
-Bản sửa này chưa được triển khai lên production. Muốn tích hợp cần dùng entrypoint mới, giữ bộ Static Assets hiện có, cấu hình binding/scope riêng phù hợp và kiểm thử trên môi trường đầy đủ.
+Bản sửa đã được triển khai production ngày 25/10/2026; xem [biên bản triển khai](docs/DEPLOYMENT.md). Muốn tích hợp cần dùng entrypoint mới, giữ bộ Static Assets hiện có, cấu hình binding/scope riêng phù hợp và kiểm thử trên môi trường đầy đủ.
 
 ## Tải trước thông tin QR
 
 Khi dữ liệu công nợ hợp lệ được render, [host QR mới](src/ui/bank-qr-host.js) tải hồ sơ các chủ nợ song song (tối đa bốn request mỗi đợt), kể cả khi chưa mở “Cần trả”. Request đang chạy được dùng chung; kết quả thành công được giữ trong bộ nhớ tối đa 30 giây, giới hạn 100 hồ sơ. Khi mở “Cần trả”, icon dùng kết quả đã tải; nếu mạng chưa trả về, vẫn cần chờ request đó hoàn tất.
 
-Cache được bỏ khi đổi tài khoản, khoảng ngày, scope hoặc dữ liệu chi tiêu; không lưu vào localStorage. Lỗi không được cache. Khi người dùng bấm icon để mở QR, bundle luôn đọc mới thông tin và số tiền từ server. Quyền đọc phía server vẫn giữ nguyên. Build tạo wrapper dẫn xuất trong `.build/`, thay host và đúng điểm gọi QR-open đã kiểm tra; snapshot gốc giữ nguyên hash. Thay đổi chưa được deploy production.
+Cache được bỏ khi đổi tài khoản, khoảng ngày, scope hoặc dữ liệu chi tiêu; không lưu vào localStorage. Lỗi không được cache. Khi người dùng bấm icon để mở QR, bundle luôn đọc mới thông tin và số tiền từ server. Quyền đọc phía server vẫn giữ nguyên. Build tạo wrapper dẫn xuất trong `.build/`, thay host và đúng điểm gọi QR-open đã kiểm tra; snapshot gốc giữ nguyên hash. Thay đổi đã được triển khai cùng bản UI ngày 25/10/2026; xem [biên bản triển khai](docs/DEPLOYMENT.md).
 
 ## Chưa thu hồi
 
