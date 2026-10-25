@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { chromium } from 'playwright';
+import { moneyLayoutCss } from '../.build/money-layout-assets.mjs';
 
 const wrapper = await readFile(new URL('../.build/ui-wrapper.mjs', import.meta.url), 'utf8');
 function literal(name) {
@@ -15,7 +16,11 @@ try {
   const page = await browser.newPage({ viewport: { width: 390, height: 1000 } });
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
-  await page.setContent('<main id="app"></main>');
+  await page.setContent(`<style>
+    .highlight{background:#246951;color:white}.highlight small{color:rgba(255,255,255,.7)}
+    .highlight .money{color:white}.payment-action{background:#246951;color:white}
+    ${moneyLayoutCss}
+  </style><main id="app"></main>`);
   await page.addScriptTag({ content: `
     var D={user:{id:'demo-actor',active:true},notes:[],users:[]};
     var tab='notes', selectedScope='me', amount='100.000 <u>đ</u>';
@@ -28,11 +33,15 @@ try {
     function render(){
       document.getElementById('app').innerHTML='<div class="cards">'+summaryCard('personal-total')+
         (duplicate?summaryCard('duplicate-total'):'')+
-        '<div class="card" id="paid-total"><small>Đã thanh toán/tự trả</small><div class="money">20.000 ₫</div></div>'+
+        '<div class="card highlight" id="paid-total"><small>Đã thanh toán/tự trả</small><div class="money">20.000 ₫</div></div>'+
+        '<div class="card highlight" id="shared-total"><small>Tổng phần được chia</small><div class="money">100.000 <u>đ</u></div></div>'+
         '<div class="card" id="unpaid-total"><small>Chưa thanh toán</small><div class="money">80.000 ₫</div></div>'+
         (withSlot?'<div class="card"><small>Số khoản ghi nhận</small><strong>2</strong></div>':'')+
         '</div><article class="note" id="authored-note"><small>Chi tiêu cá nhân</small><div class="money">500 ₫</div><button id="edit-note">Sửa</button></article>'+
-        '<div class="modal" id="edit-modal"><small>Chi tiêu cá nhân</small><div class="money">700 ₫</div><input value="700"></div>';
+        '<div class="modal" id="edit-modal"><small>Chi tiêu cá nhân</small><div class="money">700 ₫</div><input value="700"></div>'+
+        '<article class="note highlight" id="paid-note"><small>Đã thanh toán</small><div class="money">1.000 ₫</div></article>'+
+        '<div class="modal highlight" id="shared-modal"><small>Tổng phần được chia</small><div class="money">2.000 ₫</div></div>'+
+        '<button class="payment-action" id="payment-action">Thanh toán</button>';
       document.getElementById('edit-note').onclick=()=>window.editClicks=(window.editClicks||0)+1;
     }
   ` });
@@ -50,6 +59,17 @@ try {
       if (scope !== 'me') assert.equal(await page.locator('#personal-total small').textContent(), 'Chi tiêu cá nhân');
       assert.equal(await page.locator('#paid-total .money').textContent(), '20.000 ₫');
       assert.equal(await page.locator('#unpaid-total .money').textContent(), '80.000 ₫');
+      for (const id of ['paid-total', 'shared-total']) {
+        const colors = await page.locator(`#${id}`).evaluate(card => ({
+          background: getComputedStyle(card).backgroundColor,
+          text: [card, ...card.querySelectorAll('*')].map(node => getComputedStyle(node).color)
+        }));
+        assert.equal(colors.background, 'rgb(255, 255, 255)', `${tab}/${scope}/${id}: white background`);
+        assert.ok(colors.text.every(color => color === 'rgb(0, 0, 0)'), `${tab}/${scope}/${id}: black text`);
+      }
+      assert.equal(await page.locator('#shared-total .money').textContent(), '100.000 đ');
+      assert.equal(await page.locator('#payment-action').evaluate(node => getComputedStyle(node).backgroundColor), 'rgb(36, 105, 81)');
+      assert.equal(await page.locator('#paid-note.rpa-summary-neutral, #shared-modal.rpa-summary-neutral, #unpaid-total.rpa-summary-neutral').count(), 0);
       assert.equal(await page.locator('.rpa-obligation-switch button').count(), 2);
       assert.equal(await page.locator('#authored-note small').textContent(), 'Chi tiêu cá nhân');
       assert.equal(await page.locator('#edit-modal small').textContent(), 'Chi tiêu cá nhân');
@@ -58,6 +78,7 @@ try {
       // Reapplying without a host render must not restore a removed summary.
       await page.evaluate(() => RpaPresentationLabels.apply());
       assert.equal(await page.locator('#personal-total').count(), scope === 'me' ? 0 : 1);
+      assert.equal(await page.locator('.rpa-summary-neutral').count(), 2);
     }
   }
   for (const amount of ['0 ₫', '-1.000 ₫', '1.000.000.000.000 <u>đ</u>']) {
@@ -77,10 +98,11 @@ try {
       render();
     }, scenario);
     assert.equal(await page.locator('#personal-total').count(), 1, `Preserve ${scenario}`);
+    assert.equal(await page.locator('.rpa-summary-neutral').count(), ['inactive', 'outside-tab'].includes(scenario) ? 0 : 2);
     checks++;
   }
   assert.deepEqual(errors, []);
-  console.log(`Chromium: ${checks} summary/filter cases passed; notes, report, personal, totals and controls verified.`);
+  console.log(`Chromium: ${checks} summary/filter cases passed; neutral colors, notes, report, personal, totals and controls verified.`);
 } finally {
   await browser.close();
 }

@@ -1,7 +1,8 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 
 const root = new URL('../', import.meta.url);
-const moneyLayoutCss = await readFile(new URL('src/ui/money-layout.css', root), 'utf8');
+const moneyLayoutCss = (await Promise.all(['money-layout', 'summary-cards'].map(name =>
+  readFile(new URL(`src/ui/${name}.css`, root), 'utf8')))).join('\n');
 const moneyLayoutClient = await readFile(new URL('src/ui/money-layout.js', root), 'utf8');
 const bankQrHost = await readFile(new URL('src/ui/bank-qr-host.js', root), 'utf8');
 const presentationLabels = await readFile(new URL('src/ui/presentation-labels.js', root), 'utf8');

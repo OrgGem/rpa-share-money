@@ -1,0 +1,9 @@
+/* Neutral summary cards; payment buttons and status indicators keep their colors. */
+.rpa-summary-neutral {
+  background: #fff !important;
+  color: #000 !important;
+}
+
+.rpa-summary-neutral * {
+  color: inherit !important;
+}

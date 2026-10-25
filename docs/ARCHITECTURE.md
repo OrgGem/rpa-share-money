@@ -146,6 +146,8 @@ QR thiết lập không mang số tiền; QR thanh toán dùng số tiền đư�
 
 [presentation-labels.js](../src/ui/presentation-labels.js) xử lý card tổng cá nhân khi scope là `me` trên các tab Khoản chi, Báo cáo và cá nhân. Nó loại cả card đã nhận diện thay vì chỉ xóa nhãn; vẫn giữ điều kiện bảo vệ nội dung người dùng, modal, công nợ và trường hợp nhận diện không chắc chắn. Bài kiểm tra Chromium dùng các literal được build và luồng mount công nợ thật trên DOM mô phỏng để kiểm tra việc đổi tab/bộ lọc.
 
+Hai card “Đã thanh toán” và “Tổng phần được chia” được nhận diện theo nhãn cùng một giá trị tiền, đánh dấu bằng class riêng và áp dụng [summary-cards.css](../src/ui/summary-cards.css): nền trắng, chữ đen. Quy tắc tránh các khoản chi, modal, bảng và cụm công nợ; không đổi màu nút hành động hay trạng thái thanh toán. Build ghép CSS này cùng overlay tiền.
+
 Frontend mở rộng vẫn phụ thuộc các globals của asset nền: `D`, `render`, `tab`, `range`, `init` và các điểm ghép HTML. Wrapper cũ chỉ chèn các phần mở rộng khi marker khớp, rồi ghép trước `init();` cuối file. Overlay tiền được nối phía ngoài. Marker không khớp có thể khiến tính năng QR/prefetch không được chèn dù response JS vẫn thành công; không được xem HTTP 200 là bằng chứng tính năng đã hoạt động.
 
 ## 9. Build, triển khai và vận hành

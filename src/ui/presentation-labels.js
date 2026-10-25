@@ -6,6 +6,7 @@ const RpaPresentationLabels=(()=>{
  const paidPattern=/^đã\s+thanh\s+toán\s*\/\s*tự\s+trả$/iu;
  const normalize=text=>text.normalize('NFC').trim().replace(/\s+/gu,' ').replace(/\s*\/\s*/gu,'/').toLocaleLowerCase('vi');
  const changes=new Map();
+ const neutralCards=new Set();
  function userContains(text,kind='paid'){
   try{
    if(kind==='personal')return JSON.stringify(D).includes(text);
@@ -48,6 +49,28 @@ const RpaPresentationLabels=(()=>{
   }
   return null;
  }
+ function styleSummaryCards(){
+  for(const card of neutralCards)card.classList.remove('rpa-summary-neutral');
+  neutralCards.clear();
+  if(D?.user?.active!==true||!['notes','report','personal'].includes(tab))return;
+  const titles=new Set(['đã thanh toán','đã thanh toán/tự trả','tổng phần được chia']);
+  const protectedCard=baseProtected+',.note,table,[data-rpa-obligation-slot],.rpa-obligation-switch,.rpa-obligation-group';
+  const currency=/^(?:[₫đ]|VND)?\s*[+-]?\d[\d.,\s]*\s*(?:[₫đ]|VND)?$/iu;
+  for(const element of document.querySelectorAll('small,span,label,p,div,b,strong')){
+   const title=normalize(element.textContent);
+   if(!titles.has(title)||element.closest(protectedCard))continue;
+   for(let card=element.parentElement,depth=0;card&&depth<3;card=card.parentElement,depth++){
+    if(['BODY','HTML','MAIN'].includes(card.tagName)||card.closest(protectedCard)||card.querySelector(protectedCard))break;
+    const branches=[...card.childNodes].filter(node=>node.textContent.trim());
+    if(branches.length!==2)continue;
+    const labelBranch=branches.find(node=>node===element||node.contains?.(element));
+    if(!labelBranch||normalize(labelBranch.textContent)!==title)continue;
+    const amount=branches.find(node=>node!==labelBranch).textContent.trim();
+    if(!/[₫đ]|VND/iu.test(amount)||!currency.test(amount))continue;
+    card.classList.add('rpa-summary-neutral');neutralCards.add(card);break;
+   }
+  }
+ }
  function apply(){
   for(const [node,c] of changes){if(node.isConnected&&node.nodeValue===c.next&&!protectedNode(node,c.kind)&&(!c.next.trim()||!userContains(c.next.trim(),c.kind)))node.nodeValue=c.original;}
   changes.clear();
@@ -82,6 +105,7 @@ const RpaPresentationLabels=(()=>{
    if(card)card.remove();
    for(const node of labels)if(node.isConnected)change(node,'','personal');
   }
+  styleSummaryCards();
  }
  const previous=render;
  render=function(...args){const result=previous(...args);apply();return result;};
