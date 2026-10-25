@@ -20,6 +20,8 @@ Các file kiểm tra, công cụ và tài liệu được viết mới cho lần
 
 Bản sửa đã được triển khai production ngày 25/10/2026; xem [biên bản triển khai](docs/DEPLOYMENT.md). Muốn tích hợp cần dùng entrypoint mới, giữ bộ Static Assets hiện có, cấu hình binding/scope riêng phù hợp và kiểm thử trên môi trường đầy đủ.
 
+Khi lọc “Chi tiêu của tôi”, [phần trình bày card tổng](src/ui/presentation-labels.js) loại card tổng cá nhân thừa trên cả Khoản chi và Báo cáo, áp dụng cùng quy tắc với tab cá nhân. Không còn để lại khung chỉ có số tiền sau khi xóa nhãn. Kiểm tra Chromium bao phủ đổi bộ lọc/tab và giữ nguyên các tổng thanh toán, công nợ, nội dung khoản chi và nút thao tác.
+
 ## Tải trước thông tin QR
 
 Khi dữ liệu công nợ hợp lệ được render, [host QR mới](src/ui/bank-qr-host.js) tải hồ sơ các chủ nợ song song (tối đa bốn request mỗi đợt), kể cả khi chưa mở “Cần trả”. Request đang chạy được dùng chung; kết quả thành công được giữ trong bộ nhớ tối đa 30 giây, giới hạn 100 hồ sơ. Khi mở “Cần trả”, icon dùng kết quả đã tải; nếu mạng chưa trả về, vẫn cần chờ request đó hoàn tất.

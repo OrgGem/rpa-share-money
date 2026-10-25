@@ -4,6 +4,7 @@ const root = new URL('../', import.meta.url);
 const moneyLayoutCss = await readFile(new URL('src/ui/money-layout.css', root), 'utf8');
 const moneyLayoutClient = await readFile(new URL('src/ui/money-layout.js', root), 'utf8');
 const bankQrHost = await readFile(new URL('src/ui/bank-qr-host.js', root), 'utf8');
+const presentationLabels = await readFile(new URL('src/ui/presentation-labels.js', root), 'utf8');
 let wrapper = await readFile(new URL('recovered/worker/ui-wrapper.mjs', root), 'utf8');
 function replaceOnce(text, before, after) {
   if (text.split(before).length !== 2) throw new Error('Recovered wrapper contract changed');
@@ -12,6 +13,9 @@ function replaceOnce(text, before, after) {
 const hostLiteral = /^const bankQrHost=("(?:[^"\\]|\\.)*");/m.exec(wrapper);
 if (!hostLiteral) throw new Error('Recovered host literal missing');
 wrapper = replaceOnce(wrapper, hostLiteral[0], `const bankQrHost=${JSON.stringify(bankQrHost)};`);
+const labelsLiteral = /^const presentationLabels=("(?:[^"\\]|\\.)*");/m.exec(wrapper);
+if (!labelsLiteral) throw new Error('Recovered presentation labels literal missing');
+wrapper = replaceOnce(wrapper, labelsLiteral[0], `const presentationLabels=${JSON.stringify(presentationLabels)};`);
 // Availability can be warm; the QR-open action must always fetch fresh details.
 wrapper = replaceOnce(wrapper, 'let I=await x.readCreditor(p.userId),_=F(I,p.userId);', 'let I=await x.readCreditor(p.userId,{fresh:true}),_=F(I,p.userId);');
 wrapper = replaceOnce(wrapper, 'import original from "./entrypoint.js";', 'import original from "../recovered/worker/entrypoint.js";');

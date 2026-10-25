@@ -144,11 +144,13 @@ QR thiết lập không mang số tiền; QR thanh toán dùng số tiền đư�
 
 [money-layout.css](../src/ui/money-layout.css) giữ số và đơn vị trong một cụm không ngắt dòng. [money-layout.js](../src/ui/money-layout.js) đo chiều rộng để giảm font qua biến CSS và phục hồi cỡ tự nhiên khi đủ chỗ. MutationObserver/ResizeObserver gom cập nhật qua requestAnimationFrame khi render, đổi tab hoặc đổi kích thước. Script giữ text và listener, bỏ qua input, select, vùng soạn thảo, code, SVG/canvas.
 
+[presentation-labels.js](../src/ui/presentation-labels.js) xử lý card tổng cá nhân khi scope là `me` trên các tab Khoản chi, Báo cáo và cá nhân. Nó loại cả card đã nhận diện thay vì chỉ xóa nhãn; vẫn giữ điều kiện bảo vệ nội dung người dùng, modal, công nợ và trường hợp nhận diện không chắc chắn. Bài kiểm tra Chromium dùng các literal được build và luồng mount công nợ thật trên DOM mô phỏng để kiểm tra việc đổi tab/bộ lọc.
+
 Frontend mở rộng vẫn phụ thuộc các globals của asset nền: `D`, `render`, `tab`, `range`, `init` và các điểm ghép HTML. Wrapper cũ chỉ chèn các phần mở rộng khi marker khớp, rồi ghép trước `init();` cuối file. Overlay tiền được nối phía ngoài. Marker không khớp có thể khiến tính năng QR/prefetch không được chèn dù response JS vẫn thành công; không được xem HTTP 200 là bằng chứng tính năng đã hoạt động.
 
 ## 9. Build, triển khai và vận hành
 
-`npm run build` tạo `.build/ui-wrapper.mjs` và `.build/money-layout-assets.mjs`. Nó thay host và đúng một điểm gọi QR-open, đồng thời sửa import cho cây thư mục cục bộ; các điều kiện replaceOnce không khớp làm build dừng. Nó không tạo frontend nền hoặc Apps Script.
+`npm run build` tạo `.build/ui-wrapper.mjs` và `.build/money-layout-assets.mjs`. Nó thay host QR, phần trình bày nhãn/card tổng và đúng một điểm gọi QR-open, đồng thời sửa import cho cây thư mục cục bộ; các điều kiện replaceOnce không khớp làm build dừng. Nó không tạo frontend nền hoặc Apps Script.
 
 Bản triển khai production đã thực hiện có khác biệt có chủ đích: tải lại gateway và module hồ sơ đang chạy, giữ nguyên giá trị BANK_PROFILE_SCOPE và scope hardcode tương ứng của production, dùng mã UI mới từ repo, giữ assets bằng keep_assets và kế thừa binding strict. Đây là cập nhật trên hệ thống có sẵn, không phải một pipeline tái tạo đầy đủ từ public repo. Tên module trên Cloudflare và đường dẫn local khác nhau; không coi chúng là một artifact có cùng hash.
 
