@@ -10,3 +10,5 @@ Recovered browser code contains third-party implementations. Exact installed ver
 | @dqcai/vn-lunar table | Wrapper explicitly attributes version 1.0.1 and author Đoàn Quốc Cường; [original constants](https://github.com/cuongdqpayment/dqcai-vn-lunar/blob/main/src/constants.ts) | [MIT notice retained in deployed code](third-party-licenses/vn-lunar-MIT.txt) |
 
 The decoded copies and enclosing wrapper contain the same third-party implementations. Extraction does not restore upstream source file boundaries. No new blanket first-party license is granted by this recovery export. Public author attribution in license notices is intentionally preserved.
+
+Playwright is a new development-only dependency for browser layout regression checks. It is not bundled into the application; the new lockfile records test tooling and does not identify the original deployed dependencies.

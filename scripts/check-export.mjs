@@ -11,7 +11,7 @@ async function walk(dir) {
   const result = [];
   for (const item of await readdir(path.join(root, dir), { withFileTypes: true })) {
     const name = path.posix.join(dir, item.name);
-    if (['.git', 'node_modules', '__pycache__'].includes(item.name)) continue;
+    if (['.git', '.build', 'node_modules', '__pycache__'].includes(item.name)) continue;
     if (item.isSymbolicLink()) throw new Error(`Unexpected symlink: ${name}`);
     if (item.isDirectory()) result.push(...await walk(name));
     else result.push(name);

@@ -1,4 +1,5 @@
 node_modules/
+.build/
 .wrangler/
 .env
 .env.*

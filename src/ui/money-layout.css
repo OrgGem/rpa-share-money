@@ -1,0 +1,50 @@
+/* Money is an atomic, fully visible value. Labels can still wrap independently. */
+.rpa-money,
+.rpa-money * {
+  white-space: nowrap !important;
+  overflow-wrap: normal !important;
+  word-break: normal !important;
+}
+
+.rpa-money {
+  box-sizing: border-box;
+  min-inline-size: 0;
+  max-inline-size: 100%;
+  flex-shrink: 1 !important;
+  font-variant-numeric: tabular-nums;
+}
+
+.rpa-money:is(span, b, strong, small, u, em, i, a) {
+  display: inline-block;
+}
+
+.rpa-money[style*="--rpa-money-size"] {
+  font-size: var(--rpa-money-size) !important;
+}
+
+.rpa-money * {
+  display: inline !important;
+  font-size: inherit !important;
+}
+
+.rpa-money br {
+  display: none !important;
+}
+
+.note .note-total-row > .rpa-money {
+  flex: 1 1 0;
+}
+
+.rpa-obligation-group .rpa-obligation-person {
+  flex-basis: 45%;
+}
+
+.rpa-obligation-group summary > .rpa-money,
+.rpa-obligation-group li > .rpa-money {
+  flex: 0 1 55%;
+  max-inline-size: 55%;
+}
+
+.rpa-obligation-switch button > .rpa-money {
+  flex: none;
+}

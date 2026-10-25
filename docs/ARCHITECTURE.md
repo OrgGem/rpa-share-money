@@ -116,10 +116,20 @@ QR thiết lập là QR tái sử dụng, không chứa số tiền. QR thanh to
 
 Không công khai account/zone/namespace ID, tên bucket thực, metadata tác giả triển khai hoặc giá trị biến môi trường. Scope riêng hardcode duy nhất trong module R2 được thay bằng `example-bank-profile-scope-v1`; binding của một môi trường mới phải khớp scope đã chọn. Việc thay scope không phải quy trình migration cho dữ liệu production.
 
+## Lớp UI số tiền được viết mới
+
+`src/worker.mjs` là entrypoint mới có thể chỉnh sửa, bọc `recovered/worker/ui-wrapper.mjs` và export lại cùng lớp `WriteOutbox`. API và tài nguyên khác tiếp tục qua wrapper đã thu hồi. Chỉ response 200 của GET/HEAD hai đường dẫn JS/CSS được bổ sung header phiên bản và bỏ validator/kích thước cũ; GET nối phần mở rộng theo stream, HEAD không có body. Không sửa trực tiếp các artifact snapshot hoặc manifest hash của chúng.
+
+`src/ui/money-layout.css` giữ số tiền và đơn vị trong một cụm `nowrap`, cho phép co trong flex/grid và giữ phần dành cho tên/nút QR. `src/ui/money-layout.js` nhận diện nội dung tiền VND (`₫`, `đ`, `đồng`, `VND`, `VNĐ`), đánh dấu phần tử chỉ chứa tiền hoặc bọc cụm tiền trong dòng có nhãn. Nó giữ nguyên text, event listener và giá trị nghiệp vụ; bỏ qua input, select, vùng soạn thảo, code và SVG/canvas.
+
+Cỡ font tự nhiên vẫn lấy từ CSS giao diện. Khi độ rộng chữ vượt chỗ được cấp, script đo và đặt biến CSS `--rpa-money-size` để thu nhỏ; không cắt bớt số, không dùng dấu ba chấm. ResizeObserver và MutationObserver gom cập nhật qua requestAnimationFrame để xử lý đổi tab, render lại, tải font và xoay/đổi kích thước màn hình. Khi đủ chỗ, biến được bỏ để font trở về cỡ tự nhiên. API `window.RpaMoneyLayout.destroy()` tháo observer/listener khi cần thay lớp hiển thị.
+
+`npm run build` tạo `.build/money-layout-assets.mjs` từ hai file UI để Worker import; đây là bước ghép mới, không phải build gốc. Các bài Playwright dùng Chromium thật với DOM mô phỏng từ các cấu trúc đã thấy trong snapshot, chưa xác minh toàn bộ markup frontend gốc. Bộ test kiểm tra số/đơn vị không ngắt dòng, không tràn thẻ hoặc đè nút, giữ nguyên text/ô nhập và hoạt động click, cùng khả năng tăng font trở lại khi nới màn hình. Bản UI mới chưa triển khai production.
+
 ## Build, kiểm thử và giới hạn khôi phục
 
-Không có dependency lock, build config hoặc nguồn Apps Script gốc. `package.json`, script giải mã và test trong repo được viết mới để kiểm tra export. `npm run check` đối chiếu SHA-256, kiểm tra cú pháp, tính nhất quán của file giải mã và dò mẫu giá trị nhạy cảm; việc dò mẫu không thay thế rà soát thủ công. `npm test` kiểm tra hành vi tiêu biểu với dữ liệu giả và import shim cho `cloudflare:workers`.
+Không có dependency lock, build config hoặc nguồn Apps Script gốc. `package.json`, lockfile công cụ Playwright, script build UI, script giải mã và test trong repo được viết mới. `npm run check` đối chiếu SHA-256, kiểm tra cú pháp, tính nhất quán của file giải mã và dò mẫu giá trị nhạy cảm; việc dò mẫu không thay thế rà soát thủ công. `npm test` kiểm tra hành vi tiêu biểu với dữ liệu giả và import shim cho `cloudflare:workers`.
 
-Các kiểm tra này không xác nhận runtime SQLite/alarm, tích hợp Google OAuth, native sharing, trình duyệt thực hoặc nghiệp vụ GAS đầu cuối. Không có kiểm thử production và không có workflow deploy.
+Các kiểm tra này không xác nhận runtime SQLite/alarm, tích hợp Google OAuth, native sharing hoặc nghiệp vụ GAS đầu cuối. Kiểm tra UI trên trình duyệt thực dùng DOM mô phỏng, không có kiểm thử production hoặc workflow deploy.
 
 Để build lại ứng dụng đầy đủ cần lấy riêng frontend Static Assets gốc cùng bộ nguồn/build tương ứng, Apps Script cùng manifest và hợp đồng dữ liệu thực; sau đó dựng cấu hình tài nguyên mới và kiểm thử tích hợp trong môi trường riêng. Không thể tạo đúng bản production chỉ từ các file hiện có. Xem [ghi chép khôi phục](RECOVERY.md) và [manifest](../recovery-manifest.json) để biết inventory và biến đổi công khai.

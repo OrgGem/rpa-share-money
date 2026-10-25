@@ -4,10 +4,18 @@
   "private": true,
   "type": "module",
   "description": "Sanitized deployed bundles; incomplete application recovery",
-  "engines": { "node": ">=24" },
+  "engines": {
+    "node": ">=24"
+  },
   "scripts": {
     "extract": "python3 scripts/extract-embedded.py",
+    "build": "node scripts/build-ui.mjs",
     "check": "node scripts/check-export.mjs",
-    "test": "node --import ./tests/cloudflare-runtime-stub.mjs --test tests/*.test.mjs"
+    "pretest": "npm run build",
+    "test": "node --import ./tests/cloudflare-runtime-stub.mjs --test tests/*.test.mjs",
+    "test:browser": "node scripts/test-money-layout.mjs"
+  },
+  "devDependencies": {
+    "playwright": "1.64.1"
   }
 }

@@ -12,6 +12,14 @@ Tài liệu chính: **[Kiến trúc và giới hạn khôi phục](docs/ARCHITEC
 
 Các file kiểm tra, công cụ và tài liệu được viết mới cho lần khôi phục này; chúng không phải bộ test/build gốc. Không nhập lại export hoặc checkout từ phiên cũ.
 
+## Cập nhật UI số tiền
+
+[Mã UI có thể chỉnh sửa](src/ui/) bổ sung cách hiển thị số tiền cùng đơn vị trên một dòng cho các tab, thẻ tổng, chi tiết khoản chi, công nợ và bảng. CSS giữ cụm tiền không ngắt dòng; phần đo kích thước chỉ giảm font khi thiếu chỗ và trả lại cỡ tự nhiên khi rộng hơn. Các nhãn/tên vẫn được xuống dòng riêng. Giá trị tiền, trạng thái thanh toán và quyền truy cập không thay đổi.
+
+[Worker mới](src/worker.mjs) bọc snapshot đã thu hồi và nối phần UI vào hai response `/js/app.js`, `/css/app.css`. Các snapshot trong `recovered/` giữ nguyên để đối chiếu bằng chứng. `npm run build` chỉ tạo module chuỗi UI tại `.build/`; không khôi phục HTML/CSS/JS nền hoặc tạo ra một bản app đầy đủ. `package-lock.json` mới khóa công cụ test của repo, không phải dependency lock gốc đã thu hồi.
+
+Bản sửa này chưa được triển khai lên production. Muốn tích hợp cần dùng entrypoint mới, giữ bộ Static Assets hiện có, cấu hình binding/scope riêng phù hợp và kiểm thử trên môi trường đầy đủ.
+
 ## Chưa thu hồi
 
 - HTML, `/js/app.js`, `/css/app.css` và các Static Assets gốc. Tải origin công khai bị proxy môi trường chặn `403`; API đọc đã dùng trả module và cấu hình assets, không trả nội dung Static Assets.
@@ -22,16 +30,25 @@ Wrapper frontend cần asset gốc và các biến/hàm của nó; mười phầ
 
 ## Kiểm tra cục bộ
 
-Cần Node.js 24 trở lên và Python 3. Không cần cài package bên ngoài:
+Cần Node.js 24 trở lên và Python 3. Kiểm tra hash và test Worker không cần dependency bên ngoài:
 
 ```sh
 npm run check
 npm test
 ```
 
+Kiểm tra hiển thị cần Playwright trong devDependencies và Chromium:
+
+```sh
+npm ci
+npm run test:browser
+```
+
+Mặc định dùng `/usr/bin/chromium`; đặt `CHROMIUM_PATH` nếu trình duyệt ở nơi khác. Bài kiểm tra dùng DOM mô phỏng với CSS thật đã thu hồi và UI mới: 1.125 trường hợp trên năm độ rộng 320–1280px và năm tab, số lớn/âm/0, render lại, đổi kích thước, giữ nguyên ô nhập và nút thao tác. Đây không phải kiểm thử các trang production đầy đủ còn thiếu.
+
 `npm run extract` giải mã lại mười phần frontend từ wrapper. Nếu chủ động sửa artifact, phải cập nhật manifest sau khi rà soát lại; `check` chỉ xác minh, không tự ghi đè hash để làm test đạt.
 
-Kiểm tra dùng dữ liệu giả và dịch vụ giả, không gọi production. Không có lệnh deploy hoặc workflow triển khai. Test import shim không mô phỏng Durable Object SQLite/alarms hay trình duyệt thực.
+Kiểm tra dùng dữ liệu giả và dịch vụ giả, không gọi production. Không có lệnh deploy hoặc workflow triển khai. Test import shim không mô phỏng Durable Object SQLite/alarms; bài Playwright chạy trên Chromium thực với DOM mô phỏng.
 
 ## Phạm vi công khai
 
