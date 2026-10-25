@@ -34,7 +34,7 @@ Các tab dùng chung session và dữ liệu được backend cấp quyền. B�
 | Google Apps Script | Hợp đồng gọi RPC trong gateway | Chưa có project, manifest, schema hoặc implementation phía GAS |
 | Phiên bản phục vụ | Cloudflare Deployments API đối chiếu lại ngày 25/10/2026 | Không thay thế kiểm tra website qua trình duyệt |
 
-Production được xác nhận chạy bản UI và QR prefetch triển khai lúc 12:45:26 UTC, lấy thay đổi từ commit `8c69077f1c45d3da6c79d29609d00adf2a15840c`. Deployment được kiểm tra lại trong lần viết tài liệu này, vẫn phục vụ 100% traffic. Đường dẫn vào mới được xác nhận khi upload là `money-layout-worker.mjs`; khác với suy luận entrypoint ở bản khôi phục ban đầu.
+Production ban đầu nhận bản UI và QR prefetch lúc 12:45:26 UTC, từ commit `8c69077f1c45d3da6c79d29609d00adf2a15840c`. Bản sửa card tổng theo bộ lọc từ commit `4a83c257d29c81eb41bd17c9b872b2b50568e281` được triển khai tiếp lúc 16:59:46 UTC ngày 25/10/2026; Cloudflare API xác nhận phục vụ 100% traffic và năm module đúng checksum. Entry point vẫn là `money-layout-worker.mjs`. Xem [biên bản triển khai](DEPLOYMENT.md) để phân biệt hai lần triển khai và giới hạn kiểm tra qua website.
 
 Không có bằng chứng xác nhận sổ chi tiêu lưu trong Google Sheets, D1, KV hoặc một database cụ thể khác. SQLite được thấy trong Durable Object chỉ chứng minh nơi lưu hàng đợi ghi. Không suy ra schema backend từ tên action RPC.
 

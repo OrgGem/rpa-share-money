@@ -1,6 +1,18 @@
 # Triển khai production ngày 25/10/2026
 
-Cloudflare xác nhận bản triển khai lúc 12:45:26 UTC đang phục vụ 100% traffic của `https://rpa.gemslab.id.vn`. Mã thay đổi lấy từ commit `8c69077f1c45d3da6c79d29609d00adf2a15840c`: hiển thị số tiền liền đơn vị, co font theo không gian và tải trước hồ sơ chủ nợ cho icon QR.
+## Bản hiện hành: sửa card tổng lúc 16:59:46 UTC
+
+Cloudflare xác nhận phiên bản `91590338-8a6b-4df7-943a-0f371e304b89` phục vụ 100% traffic của `https://rpa.gemslab.id.vn`. Mã sửa tại commit [4a83c25](https://github.com/OrgGem/rpa-share-money/commit/4a83c257d29c81eb41bd17c9b872b2b50568e281).
+
+Lỗi trước sửa: khi chọn “Chi tiêu của tôi”, phần trình bày xóa nhãn “Chi tiêu cá nhân” trên tab Khoản chi/Báo cáo nhưng chỉ nhận diện để bỏ cả card trên tab cá nhân. Bản sửa mở rộng cùng quy tắc nhận diện sang hai tab còn lại, loại card tổng thừa thay vì để số tiền không nhãn.
+
+Đã tải lại mã production, đối chiếu baseline và chỉ thay literal presentationLabels trong ui-wrapper.mjs. Bốn module còn lại giữ nguyên; năm module sau upload được tải lại và xác minh checksum. Binding/settings, cấu hình assets, route và migration WriteOutbox được đối chiếu trước/sau và giữ nguyên. Upload dùng keep_assets và kế thừa binding strict; không dùng scope ví dụ từ snapshot public.
+
+Kiểm tra đạt: 14 test Node, 1.125 trường hợp bố cục tiền, kiểm tra QR và 17 trường hợp Chromium về card/bộ lọc, gồm đổi tab, đổi scope, số tiền 0/âm/lớn và bảo vệ các tổng/nội dung/nút còn lại. Hash 13 snapshot khôi phục giữ nguyên. Đây là kiểm tra trên DOM và dịch vụ mô phỏng; request trực tiếp đến website sau triển khai vẫn bị CONNECT proxy trả 403 trước origin, nên chưa xác minh giao diện bằng tài khoản thật trong môi trường này.
+
+## Bản UI và QR ban đầu lúc 12:45:26 UTC
+
+Bản triển khai đầu lấy thay đổi từ commit `8c69077f1c45d3da6c79d29609d00adf2a15840c`: hiển thị số tiền liền đơn vị, co font theo không gian và tải trước hồ sơ chủ nợ cho icon QR. Bản sửa card tổng phía trên kế thừa các thay đổi này.
 
 ## Cách giữ hệ thống hiện có
 
